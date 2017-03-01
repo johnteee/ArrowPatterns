@@ -66,7 +66,7 @@ they move the recursive part into the pattern matching instead of the function b
 
 Arrow Patterns can be used in place of any sub-pattern.
 
-To make the idea clear, here is some Haskell code for reversing a list:
+To make the idea clear, here is some Haskell code for getting the length of a list:
 
 ```haskell
 length [] = 0
@@ -150,6 +150,45 @@ plus a = \b ->
 ```
 
 The arrow pattern does recursion on `plus a` and not on `plus`, thus this program is correct.
+
+## Limitations
+
+This method of recursion seems very limiting at first.
+For example, how could one implement the GCD function?
+
+It is quite obvious, that the following definition won't work:
+
+```haskell
+gcd a 0 = 0
+gcd a b = gcd b (mod a b)
+```
+
+Instead, one could implement the GCD using the LCM,
+which itself would be implemented using prime factorisation:
+
+```haskell
+factors n = filter isFactor [1..n]
+  where isFactor x = n `mod` x == 0
+
+isPrime x = length (factors x) == 2
+
+primeFactorSet = filter isPrime . factors
+
+howOften a n = last $ filter (\x -> n `mod` (a^x) == 0) [1..n]
+
+-- primeFactors :: Nat -> [(Int,Nat)]
+primeFactors n = map (\f -> (howOften f n, f)) $ fs
+  where fs = filter isPrime $ primeFactorSet n
+
+{-
+lcm a b =
+  the definition of lcm over primeFactors takes more than two lines,
+  so it was left out in this snippet, even though it could easily
+  be implemented in a manageable amount of time.
+-}
+
+gcd a b = (a*b) `div` lcm a b
+```
 
 ## A Note on Practicality
 
